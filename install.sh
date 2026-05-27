@@ -37,7 +37,7 @@ fi
 modprobe amneziawg || true
 
 mkdir -p "$APP_DIR"
-cp docker-compose.yml "$APP_DIR/docker-compose.yml"
+curl -fsSL https://raw.githubusercontent.com/bazaproject/wg-easy-amneziawg/main/docker-compose.yml -o "$APP_DIR/docker-compose.yml"
 
 cat > "$APP_DIR/.env" <<ENV
 INIT_HOST=$INIT_HOST
