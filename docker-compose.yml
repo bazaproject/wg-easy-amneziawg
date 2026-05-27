@@ -1,0 +1,35 @@
+services:
+  wg-easy:
+    image: ghcr.io/wg-easy/wg-easy:15.3.0
+    container_name: wg-easy
+    restart: unless-stopped
+
+    environment:
+      LANG: ru
+      INSECURE: "true"
+
+      INIT_ENABLED: "true"
+      INIT_USERNAME: "${INIT_USERNAME}"
+      INIT_PASSWORD: "${INIT_PASSWORD}"
+      INIT_HOST: "${INIT_HOST}"
+      INIT_PORT: "${INIT_PORT}"
+      INIT_DNS: "${INIT_DNS}"
+
+      EXPERIMENTAL_AWG: "true"
+      OVERRIDE_AUTO_AWG: "awg"
+
+    volumes:
+      - ./data:/etc/wireguard
+      - /lib/modules:/lib/modules:ro
+
+    ports:
+      - "${INIT_PORT}:${INIT_PORT}/udp"
+      - "${PANEL_PORT}:51821/tcp"
+
+    cap_add:
+      - NET_ADMIN
+      - SYS_MODULE
+
+    sysctls:
+      - net.ipv4.ip_forward=1
+      - net.ipv4.conf.all.src_valid_mark=1
