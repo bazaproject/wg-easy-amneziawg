@@ -1,6 +1,6 @@
 # WG-Easy 15.3.0 + AmneziaWG
 
-Рабочая установка WG-Easy 15.3.0 с поддержкой AmneziaWG/AWG.
+Рабочая установка WG-Easy 15.3.0 с поддержкой AmneziaWG
 
 ## Установка
 
