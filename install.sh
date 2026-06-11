@@ -1,7 +1,14 @@
 #!/usr/bin/env bash
-set -e
+set -Eeuo pipefail
+
+trap 'echo "❌ Ошибка на строке $LINENO"; exit 1' ERR
 
 APP_DIR="/opt/wg-easy-amneziawg"
+
+if [ "$(id -u)" -ne 0 ]; then
+  echo "❌ Запусти от root: sudo ./install.sh"
+  exit 1
+fi
 
 read -p "Server IP / INIT_HOST: " INIT_HOST
 read -p "Admin username [admin]: " INIT_USERNAME
@@ -20,15 +27,17 @@ read -p "DNS [1.1.1.1,8.8.8.8]: " INIT_DNS
 INIT_DNS=${INIT_DNS:-1.1.1.1,8.8.8.8}
 
 apt update
-apt install -y curl wget sudo gnupg2 ca-certificates lsb-release dkms linux-headers-$(uname -r)
+apt install -y curl wget sudo gnupg2 ca-certificates lsb-release dkms "linux-headers-$(uname -r)" software-properties-common
 
 if ! command -v docker >/dev/null 2>&1; then
+  echo "📦 Устанавливаю Docker..."
   curl -fsSL https://get.docker.com | sh
 fi
 
 systemctl enable --now docker
 
 if ! command -v awg >/dev/null 2>&1; then
+  echo "📦 Устанавливаю AmneziaWG..."
   add-apt-repository -y ppa:amnezia/ppa
   apt update
   apt install -y amneziawg amneziawg-tools
@@ -37,7 +46,9 @@ fi
 modprobe amneziawg || true
 
 mkdir -p "$APP_DIR"
-curl -fsSL https://raw.githubusercontent.com/bazaproject/wg-easy-amneziawg/main/docker-compose.yml -o "$APP_DIR/docker-compose.yml"
+
+curl -fsSL https://raw.githubusercontent.com/bazaproject/wg-easy-amneziawg/main/docker-compose.yml \
+  -o "$APP_DIR/docker-compose.yml"
 
 cat > "$APP_DIR/.env" <<ENV
 INIT_HOST=$INIT_HOST
@@ -52,6 +63,6 @@ cd "$APP_DIR"
 docker compose up -d
 
 echo
-echo "Done."
+echo "✅ Done."
 echo "Panel: http://$INIT_HOST:$PANEL_PORT"
 echo "Login: $INIT_USERNAME"
